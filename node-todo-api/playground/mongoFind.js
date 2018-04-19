@@ -12,11 +12,9 @@ MongoClient.connect('mongodb://localhost:27017',(err,client)=>{
     //     console.log(res);
         
     // })
-    db.collection('Todos').find().toArray().then((err,res)=>{
-        if(err){
-            return console.log('unable to fetch data',err);
-        }
-        console.log(res);
+    db.collection('Todos').find({name:'sachin'}).toArray().then((res)=>{
+        
+        console.log("results",res);
         
     },(err)=>{
         console.log('error in getting the documents',err);
