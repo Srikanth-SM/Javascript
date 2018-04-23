@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var ObjectId = require('mongodb').ObjectId;
 
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
@@ -9,8 +10,9 @@ const app = express();
 //middleware used to populate req.body from the incoming request.
 app.use(bodyParser.json());
 
+// POST /todos
 app.post('/todos', (req, res) => {
-  console.log(req.body);
+//   console.log(req.body);
   var todo = new Todo(req.body);
   todo.save().then(
     result => {
@@ -22,6 +24,7 @@ app.post('/todos', (req, res) => {
   );
 });
 
+// GET /todos
 app.get('/todos', (req, res) => {
   Todo.find().then(
     todos => {
@@ -32,6 +35,31 @@ app.get('/todos', (req, res) => {
     }
   );
 });
+
+//GET /todos/123 
+app.get('/todos/:id',(req,res)=>{
+	const id = req.params.id;
+
+	
+
+	if(!ObjectId.isValid(id)){
+		return res.status(404).send("Object id not valid");
+	}
+	
+	Todo.findById(id).then((todo)=>{
+		if(!todo){
+			res.status(404).send();
+		}
+		// console.log(todo);
+		res.status(200).send(todo);
+	})
+	.catch((e)=>{
+		// console.log("errrererer",e);
+		res.status(400).send({"message":e.message});
+	})
+
+
+})
 
 var server = app.listen(3000, (err, res) => {
   if (err) return console.log('server not started', err);

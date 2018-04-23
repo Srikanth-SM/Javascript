@@ -1,14 +1,17 @@
 const request = require('supertest');
 const expect = require('expect');
+const ObjectId = require('mongodb').ObjectId;
 
 var { server } = require('../server.js');
 const { Todo } = require('../models/todo');
 
 var todo1 = new Todo({
+	_id:new ObjectId(),
   text: 'srikanth.s@motivitylabs.com'
 });
 
 var todo2 = new Todo({
+	_id:new ObjectId(),
   text: 'srisiro26.pec@gmail.com'
 });
 
@@ -87,9 +90,50 @@ describe('GET /todos', () => {
 		  if(err){
 			  done(err);
 		  }
-		  const todos = JSON.parse(res.text);
 		  expect(todos.length).toBe(2);
 		  done();
 	  })
-  });
+  }); 
 });
+
+describe('GET /todos/:id',()=>{
+	it('it should return 1 todo doc',(done)=>{
+		request(server)
+		.get('/todos/'+todos[0]._id.toHexString())
+		.expect(200)
+		.end((err,res)=>{
+			if(err){
+				done(err);
+			}
+			
+			const todo = JSON.parse(res.text);
+			expect(todo.text).toBe(todos[0].text);
+			done();
+		})
+	});
+
+	it('it should display 404 error for not valid ObjectId',(done)=>{
+		request(server)
+		.get('/todos/'+'123')
+		.expect(404)
+		.end(done);
+	});
+
+	it('should return 404 if todo not found',(done)=>{
+		const id = new ObjectId().toHexString();
+		request(server)
+		.get('/todos/'+id)
+		.expect(404)
+		.end((err,res)=>{
+			if(err){
+				done(err);
+			}
+			// console.log('***',res);
+			done();
+		});
+	})
+
+	
+
+	
+})
